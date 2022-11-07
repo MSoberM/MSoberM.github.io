@@ -20,30 +20,32 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="I got more and more">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Sober的学习笔记">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="date: 2022-11-06 16:16:35categories:-CTFtags:-SQL  SELECT注入小结最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。    1.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入学习">
+<meta property="og:url" content="http://example.com/2022/11/06/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="Sober的学习笔记">
-<meta property="og:description" content="I got more and more">
+<meta property="og:description" content="date: 2022-11-06 16:16:35categories:-CTFtags:-SQL  SELECT注入小结最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。    1.">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-06T08:16:35.063Z">
+<meta property="article:modified_time" content="2022-11-06T11:29:07.485Z">
 <meta property="article:author" content="Sober">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2022/11/06/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Sober的学习笔记</title>
+  <title>SQL注入学习 | Sober的学习笔记</title>
   
 
 
@@ -141,9 +143,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -159,10 +162,9 @@
       <meta itemprop="name" content="Sober的学习笔记">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/11/06/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">SQL注入学习</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          SQL注入学习
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -186,7 +188,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>date: 2022-11-06 16:16:35<br>categories:<br>-CTF<br>tags:<br>-SQL</p>
+        <p>date: 2022-11-06 16:16:35<br>categories:<br>-CTF<br>tags:<br>-SQL</p>
 <hr>
 <h2 id="SELECT注入小结"><a href="#SELECT注入小结" class="headerlink" title="SELECT注入小结"></a>SELECT注入小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
 <hr>
@@ -211,21 +213,23 @@
 <h3 id="5-MD5注入"><a href="#5-MD5注入" class="headerlink" title="5.MD5注入"></a>5.MD5注入</h3><p>主要是利用md5中参数true，将字符串转换为原始16进制字符串，利用乱码&#x3D;1来进行注入（记得闭合）<br>可用payload&#x3D;ffifdyop<br>payload&#x3D;129581926211651571912466741651878684928  </p>
 <h3 id="6-mysql弱比较"><a href="#6-mysql弱比较" class="headerlink" title="6.mysql弱比较"></a>6.mysql弱比较</h3><p>username&#x3D;0，返回所有字母开头字符串<br>username&#x3D;1，仅返回1开头的字符串<br>在进行字符串和数字进行比较时，mysql会将字符串当作数字处理  </p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+
+
+        
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -278,6 +282,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SELECT%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">SELECT注入小结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.1.</span> <span class="nav-text">1.基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%86%99shell"><span class="nav-number">1.2.</span> <span class="nav-text">2.写shell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AE%80%E5%8D%95%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">3.简单过滤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1%E7%AE%80%E5%8D%95waf%E8%BF%87%E6%BB%A4%E5%9B%9E%E6%98%BE"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1简单waf过滤回显</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2%E8%BF%87%E6%BB%A4%E6%95%B0%E5%AD%97"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2过滤数字</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3%E8%BF%87%E6%BB%A4%E7%A9%BA%E6%A0%BC"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3过滤空格</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4过滤#,-,+</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5%E8%BF%87%E6%BB%A4select"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5过滤select</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%9B%B2%E6%B3%A8"><span class="nav-number">1.4.</span> <span class="nav-text">4.盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1%E6%9C%89%E5%9B%9E%E6%98%BE%E8%80%83%E8%99%91%E6%99%AE%E9%80%9A%E7%9A%84%E7%9B%B2%E6%B3%A8%E8%84%9A%E6%9C%AC%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%88%A9%E7%94%A8%E4%BA%8C%E5%88%86%E6%B3%95%EF%BC%8C%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E7%AD%89%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1有回显考虑普通的盲注脚本，可以利用二分法，正则匹配等小技巧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2%E6%9C%89%E8%BF%87%E6%BB%A4%E6%83%85%E5%86%B5%E7%9A%84%E7%9B%B2%E6%B3%A8"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2有过滤情况的盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-1%E5%B8%B8%E8%A7%84%E8%BF%87%E6%BB%A4"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">4.2.1常规过滤</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-2%E8%BF%87%E6%BB%A4%E5%BC%95%E5%8F%B7"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">4.2.2过滤引号</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-3%E8%BF%87%E6%BB%A4%E5%BC%95%E5%8F%B7%E5%8A%A0%E6%95%B0%E5%AD%97"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">4.2.3过滤引号加数字</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-MD5%E6%B3%A8%E5%85%A5"><span class="nav-number">1.5.</span> <span class="nav-text">5.MD5注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-mysql%E5%BC%B1%E6%AF%94%E8%BE%83"><span class="nav-number">1.6.</span> <span class="nav-text">6.mysql弱比较</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
