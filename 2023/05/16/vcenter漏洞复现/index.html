@@ -20,17 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="sober的web安全之旅">
-<meta property="og:type" content="website">
-<meta property="og:title" content="SoberBlog">
-<meta property="og:url" content="http://example.com/archives/index.html">
+  <meta name="description" content="#CVE-2021-21972##产品介绍vSphere是在数据中心产品下的一套软件，ESXi是vSphere中最重要的一个组件，是虚拟化服务，所有的虚拟机都运行在ESXi服务上。vSphere (web) Client是一个管理平台，它能够直接管理多个不同的ESXi主机。在ESXi6.0之前通过C&#x2F;S架构来管理ESXi集群，并没有web端，在6.0版本之后，采用web管理平台，而部署了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vcenter漏洞复现现">
+<meta property="og:url" content="http://example.com/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html">
 <meta property="og:site_name" content="SoberBlog">
-<meta property="og:description" content="sober的web安全之旅">
+<meta property="og:description" content="#CVE-2021-21972##产品介绍vSphere是在数据中心产品下的一套软件，ESXi是vSphere中最重要的一个组件，是虚拟化服务，所有的虚拟机都运行在ESXi服务上。vSphere (web) Client是一个管理平台，它能够直接管理多个不同的ESXi主机。在ESXi6.0之前通过C&#x2F;S架构来管理ESXi集群，并没有web端，在6.0版本之后，采用web管理平台，而部署了">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg">
+<meta property="article:published_time" content="2023-05-16T08:49:31.000Z">
+<meta property="article:modified_time" content="2023-05-16T08:57:42.987Z">
 <meta property="article:author" content="Sober">
+<meta property="article:tag" content="漏洞复现">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg">
 
-<link rel="canonical" href="http://example.com/archives/">
+<link rel="canonical" href="http://example.com/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">
 
 
 <script id="page-configurations">
@@ -38,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | SoberBlog</title>
+  <title>vcenter漏洞复现现 | SoberBlog</title>
   
 
 
@@ -157,90 +162,102 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 3 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sober">
+      <meta itemprop="description" content="sober的web安全之旅">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SoberBlog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          vcenter漏洞复现现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-05-16 16:49:31 / 修改时间：16:57:42" itemprop="dateCreated datePublished" datetime="2023-05-16T16:49:31+08:00">2023-05-16</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-05-16T16:49:31+08:00"
-              content="2023-05-16">
-          05-16
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" itemprop="url">
-            <span itemprop="name">vcenter漏洞复现现</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-05-09T11:37:32+08:00"
-              content="2023-05-09">
-          05-09
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/05/09/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">SQL注入学习</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-05-09T11:37:32+08:00"
-              content="2023-05-09">
-          05-09
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/05/09/buu%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/" itemprop="url">
-            <span itemprop="name">buu刷题记录</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+        <p>#CVE-2021-21972<br>##产品介绍<br>vSphere是在数据中心产品下的一套软件，ESXi是vSphere中最重要的一个组件，是虚拟化服务，所有的虚拟机都运行在ESXi服务上。<br>vSphere (web) Client是一个管理平台，它能够直接管理多个不同的ESXi主机。在ESXi6.0之前通过C&#x2F;S架构来管理ESXi集群，并没有web端，在6.0版本之后，采用web管理平台，而部署了这个web管理平台的vSphere web Client服务器称为vCenter Server。</p>
+<p>##漏洞简介<br>vCenter中默认启用的vRops插件中，ServicesController类的uploadova接口存在未授权访问，可利用路径穿越文件解压至特定目录实现getshell。</p>
+<p>##影响版本<br>7.0 &lt;&#x3D; vCenter Server &lt; 7.0 U1c<br>6.7 &lt;&#x3D; vCenter Server &lt; 6.7 U3l<br>6.5 1e &lt;&#x3D; vCenter Server &lt; 6.5 U3n<br>4.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 4.2<br>3.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 3.10.1.2  </p>
+<p>##漏洞环境搭建<br>1.官网下载ESXi6.7.0，按步骤安装至vmware workstation中，安装好后进入ESXi进行网络配置，安装详细过程可见链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/z136370204/article/details/111719373">VMware vSphere 6.7 虚拟化搭建及配置完整详细手册</a><br>2.下载指定版本vcenter iso文件，我使用的是u2以及u3j版本的vcenter，下载之后挂载iso，进入安装，网上都有教程，一步步来就行。<br>3.安装好之后，开启SSH，SSH登录到vCenter，将所有vCenter服务器相关的jar文件复制到统一路径下，再进行下载，注意使用8010端口起http服务，其他端口要么被占用了，要么没在白名单里。<br>4.之后修改文件<code>/etc/vmware/vmware-vmon/svcCfgfiles/vsphere-ui.json</code><br>将以下内容注释取消：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">//&quot;-Xdebug&quot;,</span><br><span class="line">//&quot;-Xnoagent&quot;,</span><br><span class="line">//&quot;-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002&quot;,</span><br></pre></td></tr></table></figure>
+<p>之后按顺序重启vsphere-ui服务，打开防火墙即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">service-control --restart vsphere-ui</span><br><span class="line">iptables -P INPUT ACCEPT</span><br><span class="line">iptables -P OUTPUT ACCEPT</span><br></pre></td></tr></table></figure>
+<p>5.IDEA设置好远程JVM即可进行远程调试，但是这个洞涉及到的代码部分比较简单，所以就直接静态分析了。</p>
+<p>##漏洞代码分析<br>造成漏洞主要代码定位到vropsplugin-service.jar包中，com.vmware.vropspluginui.mvc.ServicesController类中有关于文件上传的代码。<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg" alt="漏洞代码"></p>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" rel="tag"># 漏洞复现</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/09/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/" rel="prev" title="SQL注入学习">
+      <i class="fa fa-chevron-left"></i> SQL注入学习
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
 

@@ -8,7 +8,6 @@
 <li>CTF<br>tags:</li>
 <li>SQL</li>
 </ul>
-<hr>
 <h2 id="SQL注入姿势小结"><a href="#SQL注入姿势小结" class="headerlink" title="SQL注入姿势小结"></a>SQL注入姿势小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
 <hr>
 <h3 id="1-基础知识"><a href="#1-基础知识" class="headerlink" title="1.基础知识"></a>1.基础知识</h3><p>1.1语句文档 <a href="https://www.sqlite.org/lang.html">query language</a><br>这应该是最全面的文档了，虽然暂时我还不是完全能看懂里面的内容。<br>1.2万能密码 1’ or 1&#x3D;1 –+<br>主要还是要根据源码中的查询结构进行判断，总之注意闭合查询语句就行。  </p>
@@ -71,7 +70,6 @@
 <ul>
 <li>CTF</li>
 </ul>
-<hr>
 <h1 id="1-BJDCTF2020-ZJCTF，不过如此"><a href="#1-BJDCTF2020-ZJCTF，不过如此" class="headerlink" title="1.[BJDCTF2020]ZJCTF，不过如此"></a>1.[BJDCTF2020]ZJCTF，不过如此</h1><p>题目：</p>
 <pre><code>&lt;?php
 $id = $_GET[&#39;id&#39;];
@@ -110,5 +108,22 @@ function getFlag()&#123;
 <p>因为在异或的时候会把整数类型转换成字符串类型与payload中的参数进行异或运算，所以i，j是字符串类型，也就是利用这些函数名与0-99的字符串异或。而<code>is_nan^(6).(4)</code>和<code>tan^(1).(5)</code>刚好可以获得_G和ET，之后就和方法一一样了。<br>法三：<br>通过getallheaders函数，利用请求头构造payload<br>该函数会获取http请求头的信息，所以可以在payload里传参数，再构造一个请求头字段，写入要执行的命令。<br><code>payload:?c=$pi=base_convert,$pi(696468,10,36)($pi(8768397090111664438,10,30)()&#123;1&#125;)</code><br>即c传入exec(getallheaders(){1})，再在请求头构造字段1&#x3D;cat &#x2F;flag就ok了。</p>
 <hr>
 ]]></content>
+  </entry>
+  <entry>
+    <title>vcenter漏洞复现现</title>
+    <url>/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<p>#CVE-2021-21972<br>##产品介绍<br>vSphere是在数据中心产品下的一套软件，ESXi是vSphere中最重要的一个组件，是虚拟化服务，所有的虚拟机都运行在ESXi服务上。<br>vSphere (web) Client是一个管理平台，它能够直接管理多个不同的ESXi主机。在ESXi6.0之前通过C&#x2F;S架构来管理ESXi集群，并没有web端，在6.0版本之后，采用web管理平台，而部署了这个web管理平台的vSphere web Client服务器称为vCenter Server。</p>
+<p>##漏洞简介<br>vCenter中默认启用的vRops插件中，ServicesController类的uploadova接口存在未授权访问，可利用路径穿越文件解压至特定目录实现getshell。</p>
+<p>##影响版本<br>7.0 &lt;&#x3D; vCenter Server &lt; 7.0 U1c<br>6.7 &lt;&#x3D; vCenter Server &lt; 6.7 U3l<br>6.5 1e &lt;&#x3D; vCenter Server &lt; 6.5 U3n<br>4.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 4.2<br>3.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 3.10.1.2  </p>
+<p>##漏洞环境搭建<br>1.官网下载ESXi6.7.0，按步骤安装至vmware workstation中，安装好后进入ESXi进行网络配置，安装详细过程可见链接：<a href="https://blog.csdn.net/z136370204/article/details/111719373">VMware vSphere 6.7 虚拟化搭建及配置完整详细手册</a><br>2.下载指定版本vcenter iso文件，我使用的是u2以及u3j版本的vcenter，下载之后挂载iso，进入安装，网上都有教程，一步步来就行。<br>3.安装好之后，开启SSH，SSH登录到vCenter，将所有vCenter服务器相关的jar文件复制到统一路径下，再进行下载，注意使用8010端口起http服务，其他端口要么被占用了，要么没在白名单里。<br>4.之后修改文件<code>/etc/vmware/vmware-vmon/svcCfgfiles/vsphere-ui.json</code><br>将以下内容注释取消：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//&quot;-Xdebug&quot;,</span><br><span class="line">//&quot;-Xnoagent&quot;,</span><br><span class="line">//&quot;-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002&quot;,</span><br></pre></td></tr></table></figure>
+<p>之后按顺序重启vsphere-ui服务，打开防火墙即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">service-control --restart vsphere-ui</span><br><span class="line">iptables -P INPUT ACCEPT</span><br><span class="line">iptables -P OUTPUT ACCEPT</span><br></pre></td></tr></table></figure>
+<p>5.IDEA设置好远程JVM即可进行远程调试，但是这个洞涉及到的代码部分比较简单，所以就直接静态分析了。</p>
+<p>##漏洞代码分析<br>造成漏洞主要代码定位到vropsplugin-service.jar包中，com.vmware.vropspluginui.mvc.ServicesController类中有关于文件上传的代码。<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg" alt="漏洞代码"></p>
+]]></content>
+      <tags>
+        <tag>漏洞复现</tag>
+      </tags>
   </entry>
 </search>
