@@ -2,8 +2,8 @@
 <search>
   <entry>
     <title>SQL注入学习</title>
-    <url>/2023/05/09/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<h2 id="date-2022-11-06-16-16-35categories-CTFtags-SQL"><a href="#date-2022-11-06-16-16-35categories-CTFtags-SQL" class="headerlink" title="date: 2022-11-06 16:16:35categories:- CTFtags:- SQL"></a>date: 2022-11-06 16:16:35<br>categories:<br>- CTF<br>tags:<br>- SQL</h2><h2 id="SQL注入姿势小结"><a href="#SQL注入姿势小结" class="headerlink" title="SQL注入姿势小结"></a>SQL注入姿势小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
+    <url>/2022/11/06/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h2 id="SQL注入姿势小结"><a href="#SQL注入姿势小结" class="headerlink" title="SQL注入姿势小结"></a>SQL注入姿势小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
 <hr>
 <h3 id="1-基础知识"><a href="#1-基础知识" class="headerlink" title="1.基础知识"></a>1.基础知识</h3><p>1.1语句文档 <a href="https://www.sqlite.org/lang.html">query language</a><br>这应该是最全面的文档了，虽然暂时我还不是完全能看懂里面的内容。<br>1.2万能密码 1’ or 1&#x3D;1 –+<br>主要还是要根据源码中的查询结构进行判断，总之注意闭合查询语句就行。  </p>
 <p>其他基本的mysql的知识runoob啥的都能看，在跟大佬们学习的时候，他们强调的最多的就是多看文档，这是CTF学习中很关键的部分。</p>
@@ -57,6 +57,12 @@
 <hr>
 <p>目前刷的sql题大概就是这些，之后遇到新的注入手法再慢慢积累吧。<br>最近在学习php反序列化，顺便摸索渗透中，遇到什么有意思的再开一篇记录吧~</p>
 ]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
+      </tags>
   </entry>
   <entry>
     <title>buu刷题记录</title>
