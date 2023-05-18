@@ -66,12 +66,8 @@
   </entry>
   <entry>
     <title>buu刷题记录</title>
-    <url>/2023/05/09/buu%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<p>date: 2023-04-07 15:25:51<br>categories: </p>
-<ul>
-<li>CTF</li>
-</ul>
-<h1 id="1-BJDCTF2020-ZJCTF，不过如此"><a href="#1-BJDCTF2020-ZJCTF，不过如此" class="headerlink" title="1.[BJDCTF2020]ZJCTF，不过如此"></a>1.[BJDCTF2020]ZJCTF，不过如此</h1><p>题目：</p>
+    <url>/2023/04/07/buu%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<h1 id="1-BJDCTF2020-ZJCTF，不过如此"><a href="#1-BJDCTF2020-ZJCTF，不过如此" class="headerlink" title="1.[BJDCTF2020]ZJCTF，不过如此"></a>1.[BJDCTF2020]ZJCTF，不过如此</h1><p>题目：</p>
 <pre><code>&lt;?php
 $id = $_GET[&#39;id&#39;];
 $_SESSION[&#39;id&#39;] = $id;
@@ -109,6 +105,9 @@ function getFlag()&#123;
 <p>因为在异或的时候会把整数类型转换成字符串类型与payload中的参数进行异或运算，所以i，j是字符串类型，也就是利用这些函数名与0-99的字符串异或。而<code>is_nan^(6).(4)</code>和<code>tan^(1).(5)</code>刚好可以获得_G和ET，之后就和方法一一样了。<br>法三：<br>通过getallheaders函数，利用请求头构造payload<br>该函数会获取http请求头的信息，所以可以在payload里传参数，再构造一个请求头字段，写入要执行的命令。<br><code>payload:?c=$pi=base_convert,$pi(696468,10,36)($pi(8768397090111664438,10,30)()&#123;1&#125;)</code><br>即c传入exec(getallheaders(){1})，再在请求头构造字段1&#x3D;cat &#x2F;flag就ok了。</p>
 <hr>
 ]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
   </entry>
   <entry>
     <title>vcenter漏洞复现</title>
