@@ -3,12 +3,7 @@
   <entry>
     <title>SQL注入学习</title>
     <url>/2023/05/09/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<p>date: 2022-11-06 16:16:35<br>categories:</p>
-<ul>
-<li>CTF<br>tags:</li>
-<li>SQL</li>
-</ul>
-<h2 id="SQL注入姿势小结"><a href="#SQL注入姿势小结" class="headerlink" title="SQL注入姿势小结"></a>SQL注入姿势小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
+    <content><![CDATA[<h2 id="date-2022-11-06-16-16-35categories-CTFtags-SQL"><a href="#date-2022-11-06-16-16-35categories-CTFtags-SQL" class="headerlink" title="date: 2022-11-06 16:16:35categories:- CTFtags:- SQL"></a>date: 2022-11-06 16:16:35<br>categories:<br>- CTF<br>tags:<br>- SQL</h2><h2 id="SQL注入姿势小结"><a href="#SQL注入姿势小结" class="headerlink" title="SQL注入姿势小结"></a>SQL注入姿势小结</h2><p>最近开始了SQL部分的刷题，这一部分的知识真的非常的杂乱，光是各种语句的使用这一方面，就让我非常的头疼。每一个知识点都很特别，加之SQL又是WEB这一块非常重要的部分，这让我觉得是时候养成写blog总结知识的习惯了。那么今后会不断记录下我在刷题和比赛中遇到的知识点。  </p>
 <hr>
 <h3 id="1-基础知识"><a href="#1-基础知识" class="headerlink" title="1.基础知识"></a>1.基础知识</h3><p>1.1语句文档 <a href="https://www.sqlite.org/lang.html">query language</a><br>这应该是最全面的文档了，虽然暂时我还不是完全能看懂里面的内容。<br>1.2万能密码 1’ or 1&#x3D;1 –+<br>主要还是要根据源码中的查询结构进行判断，总之注意闭合查询语句就行。  </p>
 <p>其他基本的mysql的知识runoob啥的都能看，在跟大佬们学习的时候，他们强调的最多的就是多看文档，这是CTF学习中很关键的部分。</p>
@@ -121,7 +116,7 @@ function getFlag()&#123;
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">service-control --restart vsphere-ui</span><br><span class="line">iptables -P INPUT ACCEPT</span><br><span class="line">iptables -P OUTPUT ACCEPT</span><br></pre></td></tr></table></figure>
 <p>5.IDEA设置好远程JVM即可进行远程调试，但是这个洞涉及到的代码部分比较简单，所以就直接静态分析了。</p>
 <h2 id="漏洞代码分析"><a href="#漏洞代码分析" class="headerlink" title="漏洞代码分析"></a>漏洞代码分析</h2><p>造成漏洞主要代码定位到vropsplugin-service.jar包中，com.vmware.vropspluginui.mvc.ServicesController类中有关于文件上传的代码。<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg" alt="1"><br>代码逻辑就是将tar文件解压上传到<code>/tmp/unicorn_ova_dir</code>目录。注意到如下部分：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/2.jpg" alt="2"><br>直接将tar的文件名与<code>/tmp/unicorn_ova_dir</code>拼接并写入文件，如果文件名存在<code>../</code>即可实现目录遍历。  </p>
-<h3 id="ssh写公钥getshell"><a href="#ssh写公钥getshell" class="headerlink" title="ssh写公钥getshell"></a>ssh写公钥getshell</h3><p>找一找可利用的方法，既然是能够实现目录遍历的文件上传，先看一看vsphere-ui用户有写权限的目录：  </p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="ssh写公钥getshell"><a href="#ssh写公钥getshell" class="headerlink" title="ssh写公钥getshell"></a>ssh写公钥getshell</h3><p>找一找可利用的方法，既然是能够实现目录遍历的文件上传，先看一看vsphere-ui用户有写权限的目录：  </p>
 <pre><code>    su vsphere-ui
     find / -writable -type d |&amp; grep -v &quot;Permission denied&quot;
 </code></pre>
@@ -129,7 +124,9 @@ function getFlag()&#123;
 <h3 id="上传webshell"><a href="#上传webshell" class="headerlink" title="上传webshell"></a>上传webshell</h3><p>另一种思路是写入webshell，首先需要遍历找出有jsp的web.xml，并且目录可写：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/web-xml.jpg" alt="xml"><br>使用<code>VMware-VCSA-all-6.7.0-8217866</code>实现，<code>web</code>的资源目录为<code>/usr/lib/vmware-vsphere-ui/server/work/deployer/s/global/%d/0/h5ngc.war/resources/</code>,其中%d是随着重启行为发生改变的，所以可以构造上传包进行暴力批量添加。<br>向<code>https:/192.168.26.137/ui/vropspluginui/rest/services/uploadova</code>发送POST请求，上传带有目录穿越的<code>tar</code>包，内容为冰蝎4.0 aes加密默认的<code>shell.jsp</code>，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/5.jpg" alt="5"><br>冰蝎连接即可：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/6.jpg" alt="6"><br>但是写shell漏洞在<code>13010631</code>及之后的版本中进行了修复,在<code>server-launcher.jar</code>包中调用了<code>com.vmware.vise.launcher.tomcat.TomcatLauncher</code>类，代码如下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/7.jpg" alt="7"><br>其中有个函数<code>deleteWorkDirectory</code>，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/8.jpg" alt="8"><br>这个函数的作用就是删除<code>web</code>目录，先从命令行中的<code>catalina.base</code>获取设置的<code>Tomcat</code>工作目录<code>/usr/bin/vmware-vsphere-ui/server</code>,然后拼接<code>/work</code>路径并判断是否存在，不存在则返回，存在则调用<code>deleteDirectoryRecur</code>函数进行删除，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/9.jpg" alt="9"><br>也就是说后面的版本是跑在内存里的，在网上看到有师傅说可以将webshell上传到<code>/usr/lib/vmware-vsphere-ui/server/static/resources/libs/</code>作为后门，然后等vCenter重启之后会被加载运行，但是我尝试了一下，发现并不可行，也不知道是怎么利用的。  </p>
 <h2 id="武器化利用"><a href="#武器化利用" class="headerlink" title="武器化利用"></a>武器化利用</h2><p>对于<code>13010631</code>之前版本的exp<a href="https://github.com/NS-Sp4ce/CVE-2021-21972">https://github.com/NS-Sp4ce/CVE-2021-21972</a>这位师傅已经写好了。  </p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://hosch3n.github.io/2021/07/06/VMware-vCenter%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90">VMware vCenter漏洞分析（一）</a><br><a href="https://0x20h.com/p/7cb6.html">CVE-2021-21972 复现和分析</a><br><a href="https://3gstudent.github.io/VMware-VCenter-Server%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA">VMware VCenter Server漏洞调试环境搭建</a><br><a href="https://blog.csdn.net/z136370204/article/details/111719373">VMware vSphere 6.7 虚拟化搭建及配置完整详细手册</a></p>
-]]></content>
+<h1 id="CVE-2021-21985"><a href="#CVE-2021-21985" class="headerlink" title="CVE-2021-21985"></a>CVE-2021-21985</h1><h2 id="漏洞简介-1"><a href="#漏洞简介-1" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p>默认启用的Virtual SAN Health Check插件中的&#x2F;rest&#x2F;*接口存在未授权访问，可利用不安全的反射调用实现getshell</p>
+<h2 id="影响版本-1"><a href="#影响版本-1" class="headerlink" title="影响版本"></a>影响版本</h2><p>7.0 &lt;&#x3D; vCenter Server &lt; 7.0 U2b<br>6.7 &lt;&#x3D; vCenter Server &lt; 6.7 U3n<br>6.5 &lt;&#x3D; vCenter Server &lt; 6.5 U3p<br>4.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 4.2.1<br>3.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 3.10.2.1</p>
+<h2 id="漏洞代码分析-1"><a href="#漏洞代码分析-1" class="headerlink" title="漏洞代码分析"></a>漏洞代码分析</h2>]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
