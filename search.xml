@@ -177,7 +177,11 @@ function getFlag()&#123;
         <property name="whatever" value="#{ system.setProperty(&quot;output&quot;, br.lines().collect(collectors.joining(&quot;\n&quot;))) }"/>
     </bean>
 </beans>
-```]]></content>
+```
+最终利用需要发两次http请求，第一个请求利用h5-vsan组件，ssrf去请求本地的vsan Health组件，返回内容可控的XML文件内容，XML文件会执行命令并存入System Properties中，第二个请求调用`systemProperties`bean的`getProperty`方法获取输出，最终攻击效果如下：
+![26](26.jpg)
+![27](27.jpg)
+很奇怪的一点是，我只有u2的版本能够成功不出网利用，但是明明该漏洞是u3n修复的，u3的几个版本网上的师傅们能够打，但是我的就不行。vcenter真的很迷，有时候还会突然打不了了，而且奇奇怪怪的缓存问题会直接把服务跑崩了。]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
