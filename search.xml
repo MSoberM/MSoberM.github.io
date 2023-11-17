@@ -246,7 +246,7 @@ vsphereHealthProviderUtils_setVsphereHealthServiceFactory
       </tags>
   </entry>
   <entry>
-    <title>vcenter漏洞复现</title>
+    <title>metabase jdbc rce</title>
     <url>/2023/05/16/jdbc-rce/</url>
     <content><![CDATA[<h1 id="CVE-2023-38646"><a href="#CVE-2023-38646" class="headerlink" title="CVE-2023-38646"></a>CVE-2023-38646</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>直接官网<a href="https://downloads.metabase.com/v0.46.6/metabase.jar">https://downloads.metabase.com/v0.46.6/metabase.jar</a>下载jar包部署。<br>jdk需要大于等于11  </p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="未授权"><a href="#未授权" class="headerlink" title="未授权"></a>未授权</h3><p>Metabase安装的时候存在一个特殊的令牌setup-token，该token可以用来重置jdbc的url连接。该token应该在安装结束后删除，但存在漏洞的版本并没有这么操作。在官方的2022年1月的一次commit中可以看到，删除了clear-token的操作，导致设置完metabase之后依然存在setup-token。<br><img src="/2023/05/16/jdbc-rce/1.jpg" alt="1"><br>在<code>src/metabase/api/session.clj</code>中存在<code>/properties</code>的api，可以获取声明为public的全局属性。<br><img src="/2023/05/16/jdbc-rce/2.png" alt="2"><br>而setup-token在生成的时候默认设置为了public：<br><img src="/2023/05/16/jdbc-rce/3.png" alt="3"><br>所以可以通过<code>/api/session/properties</code>来获取setup-token：<br><img src="/2023/05/16/jdbc-rce/4.png" alt="4"></p>
